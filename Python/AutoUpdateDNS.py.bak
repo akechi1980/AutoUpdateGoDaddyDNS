@@ -5,10 +5,6 @@ import os, socket
 # pip install requests
 import requests
 
-
-
-
-
 args = {
   "DomainName":"<DomainName>",
   "DomainType":"A",
