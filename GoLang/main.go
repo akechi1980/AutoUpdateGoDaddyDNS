@@ -24,26 +24,29 @@ func main() {
     for true  {
         ip1 :=   getPublicIP()
         ip2 :=   getDNSRecordIP(DOMAIN_SUBNAME + "." + DOMAIN_NAME)
-        // 测试用代码
-        // ip1 = "0.0.0.0"
-        // ip1 = "0.0.0.0"
-        fmt.Println("PublicIP : " + ip1)
-        fmt.Println("DNSRecord : " + DOMAIN_SUBNAME + "." + DOMAIN_NAME + ":" + ip2)
-        if ip1 == "0.0.0.0" {
-            fmt.Println("Can't Get PublicIP,Will Try it Later ")
-            time.Sleep(time.Duration(TIME_INTERVAL) * time.Second)
-            continue
-        }
-        if ip1 == ip2 {
-            fmt.Println("No Need For Update Domian Record ")
-            time.Sleep(time.Duration(TIME_INTERVAL) * time.Second)
-            continue
-        }else{
-            fmt.Print("Ready To Update Domian Record ...")
+        // ip2 = "0.0.0.0"
+        formatMsg("PublicIP : " + ip1)
+        formatMsg("DNSRecord : " + DOMAIN_SUBNAME + "." + DOMAIN_NAME + ":" + ip2)
+        
+        if len([]rune(ip1)) > 15 {
+        
+            formatMsg("Get PublicIP Error ")
+            
+        } else if ip2 == "0.0.0.0" {
+            formatMsg("Get DNSRecord Error ")
 
+        } else if ip1 == ip2 {
+            formatMsg("No Need For Update Domian Record ")
+
+        }else{
+
+            formatMsg("Ready To Update Domian Record ...")
+        	setDNSRecordIP(ip1,DOMAIN_TTL,DOMAIN_NAME,DOMAIN_TYPE,DOMAIN_SUBNAME,GoDaddy_Key,GoDaddy_Sec)
         }
-        setDNSRecordIP(ip1,DOMAIN_TTL,DOMAIN_NAME,DOMAIN_TYPE,DOMAIN_SUBNAME,GoDaddy_Key,GoDaddy_Sec)
+        
+
         time.Sleep(time.Duration(TIME_INTERVAL) * time.Second)
+
     }
 }
 
@@ -81,23 +84,33 @@ func setDNSRecordIP(ip string, ttl int, domain string, domainType string, name s
     //提交请求
     reqest, err := http.NewRequest("PUT", url, strings.NewReader(data))
     if err != nil {
-        panic(err)
+        //panic(err)
+        fmt.Printf("The HTTP request failed with error %s\n", err)
+		return 
     }
     reqest.Header.Add("content-type", "application/json")
     reqest.Header.Add("Accept", "application/json")
     ssokey :=fmt.Sprintf("sso-key %s:%s",key,sec)
     reqest.Header.Add("Authorization", ssokey)
     //处理返回结果
-    response, _ := client.Do(reqest)
+    response, err := client.Do(reqest)
    //返回的状态码
+    if err != nil {
+        //panic(err)
+        fmt.Printf("The HTTP request failed with error %s\n", err)
+		return 
+    }
     status := response.StatusCode
     if status == 200 {
-        fmt.Println("Done!")
+        formatMsg("Done!")
     }else{
-        fmt.Print(status)
-        fmt.Println(" Error Hapened!")
+        formatMsg("Error Hapened!")
     }
     
 }
 
+func formatMsg(msg string){
+	formatTimeStr:=time.Now().Format("2006-01-02 15:04:05")
+	fmt.Println(formatTimeStr + " : " +  msg)
+}
 
