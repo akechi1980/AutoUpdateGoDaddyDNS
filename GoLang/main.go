@@ -31,7 +31,9 @@ func main() {
         if len([]rune(ip1)) > 15 {
         
             formatMsg("Get PublicIP Error ")
-            
+        } else if ip1 == "0.0.0.0" {
+            formatMsg("Get PublicIP Error ")
+           
         } else if ip2 == "0.0.0.0" {
             formatMsg("Get DNSRecord Error ")
 
